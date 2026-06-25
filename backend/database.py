@@ -1,16 +1,27 @@
 import sqlite3
 import hashlib
+import os
 from datetime import datetime
 
 class Database:
-    def __init__(self, db_path='dating.db'):
+    def __init__(self, db_path=None):
+        if db_path is None:
+            # Берём папку, где лежит database.py
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            # Создаём папку instance рядом с database.py
+            instance_dir = os.path.join(base_dir, 'instance')
+            if not os.path.exists(instance_dir):
+                os.makedirs(instance_dir)
+                print(f'📁 Создана папка: {instance_dir}')
+            db_path = os.path.join(instance_dir, 'dating.db')
         self.db_path = db_path
+        print(f'📂 База данных: {self.db_path}')
         self.init_db()
 
     def get_connection(self):
         """Получить соединение с БД"""
         conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Чтобы возвращать словари
+        conn.row_factory = sqlite3.Row
         return conn
 
     def init_db(self):
@@ -67,29 +78,42 @@ class Database:
 
         conn.commit()
         conn.close()
-        print('✅ База данных инициализирована')
+        print(f'✅ База данных инициализирована: {self.db_path}')
 
     def _create_test_users(self, cursor):
         """Создать тестовых пользователей"""
         test_users = [
-            ('Анна', '123', 'female', 24, 'Москва', 'Люблю кофе и уютные вечера', 'https://i.pravatar.cc/400?img=1'),
-            ('Екатерина', '123', 'female', 27, 'СПб', 'Ищу серьезные отношения', 'https://i.pravatar.cc/400?img=5'),
-            ('Мария', '123', 'female', 22, 'Казань', 'Спорт и путешествия', 'https://i.pravatar.cc/400?img=10'),
-            ('Ольга', '123', 'female', 29, 'Екатеринбург', 'Люблю готовить и гулять', 'https://i.pravatar.cc/400?img=25'),
-            ('Дмитрий', '123', 'male', 26, 'Москва', 'Программист, ищу девушку', 'https://i.pravatar.cc/400?img=11'),
-            ('Алексей', '123', 'male', 30, 'Сочи', 'Активный отдых и море', 'https://i.pravatar.cc/400?img=12'),
-            ('Иван', '123', 'male', 25, 'Новосибирск', 'Спортсмен, добрый', 'https://i.pravatar.cc/400?img=20'),
-            ('Сергей', '123', 'male', 32, 'Краснодар', 'В поиске второй половинки', 'https://i.pravatar.cc/400?img=33'),
+            ('Анна', '123', 'female', 24, 'Москва', 'Люблю кофе и уютные вечера', 'https://i.pinimg.com/736x/be/3a/2d/be3a2dddce76085b2d55eaaeaa827c12.jpg'),
+            ('Екатерина', '123', 'female', 27, 'СПб', 'Ищу серьезные отношения', 'https://i.pinimg.com/736x/a0/54/4e/a0544e33c200b3a2752e75520dbe794a.jpg'),
+            ('Мария', '123', 'female', 22, 'Казань', 'Спорт и путешествия', 'https://i.pinimg.com/736x/a0/54/4e/a0544e33c200b3a2752e75520dbe794a.jpg'),
+            ('Ольга', '123', 'female', 44, 'Екатеринбург', 'Люблю готовить и гулять', 'https://i.pinimg.com/736x/d1/ea/75/d1ea753267e31672339ad8a1cdb28baf.jpg'),
+            ('Дмитрий', '123', 'male', 26, 'Москва', 'Программист, ищу девушку', 'https://i.pinimg.com/736x/d0/cc/b1/d0ccb1fceba44f15054157ce2664b3d7.jpg'),
+            ('Алексей', '123', 'male', 30, 'Сочи', 'Активный отдых и море', 'https://i.pinimg.com/736x/65/5c/45/655c450963bafebbaaa4ed34ba0fbda0.jpg'),
+            ('Иван', '123', 'male', 25, 'Новосибирск', 'Спортсмен, добрый', 'https://i.pinimg.com/736x/93/12/86/9312869848ff8bf846afc42b1e8711d0.jpg'),
+            ('Сергей', '123', 'male', 32, 'Краснодар', 'В поиске второй половинки', 'https://i.pinimg.com/736x/f2/7a/6f/f27a6fc79c0ae430be96990864de7e13.jpg'),
+            ('Саня', '123', 'male', 18, 'Благовещенск', 'В поиске второго рональдо', 'https://i.pinimg.com/736x/ee/e3/e6/eee3e683f79c1ab8a230e13c850ffbe8.jpg'),
+            ('Дарья', '123', 'female', 11, 'Москва', 'Люблю уютные вечера', 'https://i.pinimg.com/736x/b1/66/74/b166743768f2edd46e756b630f7ffb4a.jpg'),
+            ('Варвара', '123', 'female', 15, 'СПб', 'Ищу серьезные отношения', 'https://i.pinimg.com/736x/a0/54/4e/a0544e33c200b3a2752e75520dbe794a.jpg'),
+            ('Владислава', '123', 'female', 32, 'Москва', 'Люблю кофе и уютные вечера', 'https://i.pinimg.com/736x/47/d6/95/47d69577f0dd61162ec7526f2ead84dc.jpg '),
+            ('Елизавета', '123', 'female', 27, 'СПб', 'Ищу серьезные отношения', 'https://i.pinimg.com/736x/a0/54/4e/a0544e33c200b3a2752e75520dbe794a.jpg'),
+            ('Кристина', '123', 'female', 22, 'Казань', 'Спорт и путешествия', 'https://i.pinimg.com/736x/37/02/e9/3702e9686649a7d1b5c731a1b8cc237b.jpg'),
+            ('Эвелина', '123', 'female', 28, 'Екатеринбург', 'Люблю готовить и гулять', 'https://i.pinimg.com/736x/49/ed/99/49ed99b1830be71cc6e6b78fb59589f8.jpg'),
+            ('Илья', '123', 'male', 29, 'Москва', 'Программист, ищу девушку', 'https://i.pinimg.com/736x/2f/a8/e9/2fa8e91fa5c0a46a57b765dc923054f5.jpg'),
+            ('Ярослав', '123', 'male', 33, 'Сочи', 'Активный отдых и море', 'https://i.pinimg.com/736x/80/a6/d3/80a6d39aaf68de0d0a1aabf1fb2aaf6d.jpg '),
+            ('Степа', '123', 'male', 21, 'Новосибирск', 'Спортсмен, добрый', 'https://i.pinimg.com/736x/71/a2/bb/71a2bb8f2c573d77b928d0bd61b7cb2e.jpg '),
+            ('Руслан', '123', 'male', 23, 'Краснодар', 'В поиске второй половинки', 'https://i.pinimg.com/736x/78/2a/99/782a99e836e19c53bb92e8d4d0e96daf.jpg'),
+            ('Арсений', '123', 'male', 5, 'Благовещенск', 'В поиске второго хакера', 'https://i.pinimg.com/736x/f5/d0/25/f5d02515210afb38f4dff6c25732044f.jpg'),
+            ('Есения', '123', 'female', 13, 'Москва', 'Люблю уютные вечера', 'https://i.pinimg.com/736x/a0/54/4e/a0544e33c200b3a2752e75520dbe794a.jpg'),
+            ('Соня', '123', 'female', 22, 'СПб', 'Ищу серьезные отношения', 'https://i.pinimg.com/736x/5d/be/40/5dbe40a84a1a4809de1dbeefe1bc2d35.jpg'),
         ]
 
         for username, password, gender, age, city, bio, photo in test_users:
-            hashed = hashlib.sha256(password.encode()).hexdigest()
             cursor.execute('''
                 INSERT INTO users (username, password, gender, age, city, bio, photo)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (username, hashed, gender, age, city, bio, photo))
+            ''', (username, password, gender, age, city, bio, photo))
 
-        print('👥 Добавлено 8 тестовых пользователей')
+        print('👥 Добавлено 8 тестовых пользователей (пароль: 123)')
 
     # ========== МЕТОДЫ ДЛЯ РАБОТЫ С ПОЛЬЗОВАТЕЛЯМИ ==========
 
@@ -98,13 +122,11 @@ class Database:
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        
         try:
             cursor.execute('''
                 INSERT INTO users (username, password, gender, age, city, bio, photo)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (username, hashed_password, gender, age, city, bio, photo))
+            ''', (username, password, gender, age, city, bio, photo))
             conn.commit()
             user_id = cursor.lastrowid
             conn.close()
